@@ -18,13 +18,13 @@
 			center: [-71.0589,42.3601]
 		});
 		await new Promise(resolve => map.on("load", resolve));
-		stations = await d3.csv("datatset.csv")
+		stations = await d3.csv("https://drive.google.com/file/d/1ohWuoCZ_fC5lokRx8jiBXI575DImU4FO/view")
 		// "https://drive.google.com/file/d/1ohWuoCZ_fC5lokRx8jiBXI575DImU4FO/view?usp=sharing");
 			// "https://vis-society.github.io/labs/8/data/bluebikes-stations.csv");
 	})
 	
 	function getCoords (station) {
-		let point = new mapboxgl.LngLat(+station.Longitude, +station.Latitude);
+		let point = new mapboxgl.LngLat(+station.Long, +station.Lat);
 		let {x, y} = map.project(point);
 		return {cx: x, cy: y};
 	}
