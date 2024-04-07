@@ -17,7 +17,7 @@
 			center: [-71.0589,42.3601]
 		});
 		await new Promise(resolve => map.on("load", resolve));
-		stations = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/dataset.csv?token=GHSAT0AAAAAACQULPLSDSP7QRAP46U6NWW2ZQTDYNQ");
+		stations = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLTNVOLSFGOBQNXWOVOZQTFD5A");
 	})
 	
 	function getCoords (station) {
