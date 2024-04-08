@@ -16,11 +16,15 @@
 			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
 			zoom: 11.5,
 			center: [-71.0589,42.3601],
-			dragPan: false
+			interactive: false
 		});
 		await new Promise(resolve => map.on("load", resolve));
 		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLT2XVQQ2BZ3EXJWIUQZQTHSWA");
 		// https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/dataset.csv?token=GHSAT0AAAAAACQULPLTVEEFEROYS4OZHXE2ZQTFKNQ") 
+
+		//TODO consolidate data and only have fields we need
+		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
+		
 	})
 	
 	function getCoords (rental) {
@@ -35,7 +39,8 @@
 	let hoveredIndex = -1;
 	$: hoveredRental = rentals[hoveredIndex] ?? hoveredRental ?? {};
 
-	
+	// other features to add: time line slider, search functionality even if owner isnt top 10 for a score given an address\
+
 </script>
 
 <style>
@@ -48,20 +53,23 @@
 		z-index: 1;
 		width: 100%;
 		height: 100%;
-		pointer-events: none;
+		pointer-events: auto;
 	}
-
-	/* dl.info with grid layout so that the <dt>s are on the 1st column and the <dd>s on the 2nd, remove their default margins, and apply some styling to make the labels less prominent than the values. */
-
-	.info {
+	dl.info {
 		display: grid;
 		grid-template-columns: auto 1fr;
 		margin: 0;
+		gap: 0.5em;
 	}
 
-	.info dt {
-		font-size: 0.8em;
+	dl.info dt {
 		color: #888;
+		font-weight: normal;
+	}
+
+	dl.info dd {
+		margin-left: 0;
+		font-weight: bold;
 	}
 
 	.tooltip {
@@ -69,6 +77,15 @@
 		top: 5em;
 		right: 45em;
 	}
+	circle {
+		transition: 200ms;
+		transform-origin: center;
+		transform-box: fill-box;
+		&:hover {
+			transform: scale(3);
+		}
+	}
+
 
 
 </style>
@@ -80,6 +97,7 @@
 <h1>Who Owns Boston?</h1>
 <p>Below is a map of Boston with the properties owned by the top 10 owners highlighted in different colors {rentals.OWNER}</p>
 <p>Hover over a circle to see details about the owner of the property</p>
+<!-- define how we decide what to include / exclude -->
 <dl id="commit-tooltip" class="info tooltip">
 	<dt>Number of properties:</dt>
 	<dd>...</dd>
@@ -95,7 +113,20 @@
 
 	<dt>Year Built:</dt>
 	<dd>...</dd>
+
+	<dt>Eviction rate:</dt>
+	<dd>...</dd>
+
+	<dt>Code violations:</dt>
+	<dd>...</dd>
+
+	<dt>Overall Landlord Score:</dt>
+	<dd>...</dd>
+
+	<!-- TODO add connections to data source for field calculations  -->
+
 </dl>
+
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
@@ -112,5 +143,6 @@
 			{/each}
 		{/key}
 	</svg>
+
 </div>
 
