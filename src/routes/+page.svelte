@@ -126,6 +126,7 @@
 	<dd><li> Address searching functionality </li></dd>
 	<dd><li> Year over year view with timeline slider going back to 2014</li></dd>
 	<dd><li> More comprehensive set of data points (approximately 2,000 shown below)</li></dd>
+	<dd><li> Zoom and interactive flexibility + other bug fixes</li></dd>
 	<p>	</p>
 	
 
