@@ -19,7 +19,7 @@
 			interactive: true
 		});
 		await new Promise(resolve => map.on("load", resolve));
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLSRPEN6IY2Y3IVZHHEZQTJR5Q");
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv?token=GHSAT0AAAAAACQULPLS447HQWOXE7A6GGQGZQTLL2A");
 		// TODO consolidate data and only have fields we need
 		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
 		
@@ -35,7 +35,20 @@
 	$: map?.on("move", evt => mapViewChanged++);
 	let hoveredOwner = null;
 	let hoveredIndex = -1;
-	// $: hoveredRental = rentals[hoveredIndex] ?? hoveredRental ?? {};
+	
+	let totalProperties = 0;
+	let percentageOfTotalProperties = 0;
+	let averageTotalValue = 0;
+	function handleMouseEnter(rental) {
+		hoveredOwner = rental.OWNER;
+		totalProperties = rentals.filter(r => r.OWNER === hoveredOwner).length;
+		percentageOfTotalProperties = (totalProperties / rentals.length) * 100;
+		const ownerRentals = rentals.filter(r => r.OWNER === hoveredOwner);
+    	const totalValue = ownerRentals.reduce((sum, r) => sum + +r.TOTAL_VALUE, 0);
+    	averageTotalValue = totalValue / ownerRentals.length;
+	}
+
+	
 
 	// other features to add: time line slider, search functionality even if owner isnt top 10 for a score given an address\
 
@@ -112,19 +125,20 @@
 	<dd><li> Hover over a circle owned by a top 10 owner to see details about the property and it's owner </li></dd>
 	<dd><li> Address searching functionality </li></dd>
 	<dd><li> Year over year view with timeline slider going back to 2014</li></dd>
+	<dd><li> More comprehensive set of data points (approximately 2,000 shown below)</li></dd>
 	<p>	</p>
 	
 
 
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
 	<dt>Number of properties:</dt>
-	<dd>...</dd>
+	<dd>{totalProperties}</dd>
 
 	<dt>Percentage of total properties:</dt>
-	<dd>...</dd>
+	<dd>{percentageOfTotalProperties.toFixed(2)}%</dd>
 
 	<dt>Average total value:</dt>
-	<dd>...</dd>
+	<dd>${averageTotalValue.toFixed(2)}</dd>
 
 	<dt>Sum Total Value:</dt>
 	<dd>...</dd>
@@ -136,6 +150,9 @@
 	<dd>...</dd>
 
 	<dt>Code violations:</dt>
+	<dd>...</dd>
+
+	<dt>Estimated probabilty of property to be purchased by a top 10 owner in the future:</dt>
 	<dd>...</dd>
 
 	<dt>Overall Landlord Score:</dt>
@@ -153,18 +170,18 @@
 					cx={ getCoords(rental).cx }
 					cy={ getCoords(rental).cy }
 					r="5" 
-					fill={colorScale(rental.OWNER)}
+					fill={rental.Top_10_owner === "1" ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
 					on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
-					on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}				
+					on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}
+					on:mouseenter={() => handleMouseEnter(rental)}			
 				/> 
-		
 			{/each}
 		{/key}
 	</svg>
 
 </div>
 
-<p>* Relevant is defined using..</p>
+<p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
 
 <!-- define how we decide what to include / exclude -->
