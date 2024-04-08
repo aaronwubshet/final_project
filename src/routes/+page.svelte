@@ -32,6 +32,9 @@
 	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 	$: map?.on("move", evt => mapViewChanged++);
 	
+	let hoveredIndex = -1;
+	$: hoveredRental = rentals[hoveredIndex] ?? hoveredRental ?? {};
+
 	
 </script>
 
@@ -47,6 +50,27 @@
 		height: 100%;
 		pointer-events: none;
 	}
+
+	/* dl.info with grid layout so that the <dt>s are on the 1st column and the <dd>s on the 2nd, remove their default margins, and apply some styling to make the labels less prominent than the values. */
+
+	.info {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		margin: 0;
+	}
+
+	.info dt {
+		font-size: 0.8em;
+		color: #888;
+	}
+
+	.tooltip {
+		position: fixed;
+		top: 5em;
+		right: 45em;
+	}
+
+
 </style>
 
 <svelte:head>
@@ -55,9 +79,23 @@
 
 <h1>Who Owns Boston?</h1>
 <p>Below is a map of Boston with the properties owned by the top 10 owners highlighted in different colors {rentals.OWNER}</p>
-<svg>
+<p>Hover over a circle to see details about the owner of the property</p>
+<dl id="commit-tooltip" class="info tooltip">
+	<dt>Number of properties:</dt>
+	<dd>...</dd>
 
-</svg>
+	<dt>Percentage of total properties:</dt>
+	<dd>...</dd>
+
+	<dt>Average total value:</dt>
+	<dd>...</dd>
+
+	<dt>Sum Total Value:</dt>
+	<dd>...</dd>
+
+	<dt>Year Built:</dt>
+	<dd>...</dd>
+</dl>
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
@@ -67,10 +105,12 @@
 					cy={ getCoords(rental).cy }
 					r="5" 
 					fill={colorScale(rental.OWNER)}
+					on:mouseenter={evt => hoveredIndex = index}
+					on:mouseleave={evt => hoveredIndex = -1}
 				/> 
 		
 			{/each}
 		{/key}
-		
 	</svg>
 </div>
+
