@@ -16,7 +16,7 @@
 			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
 			zoom: 11.5,
 			center: [-71.0589,42.3601],
-			interactive: false
+			interactive: true
 		});
 		await new Promise(resolve => map.on("load", resolve));
 		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLSRPEN6IY2Y3IVZHHEZQTJR5Q");
@@ -43,6 +43,7 @@
 
 <style>
 	@import url("$lib/global.css");
+	
 	#map {
 		flex: 1;
 	}
@@ -78,8 +79,8 @@
 
 	.tooltip {
 		position: fixed;
-		top: 5em;
-		right: 45em;
+		top: 1em;
+		right: 1em;
 		background-color: hsla(100, 0%, 100%, 0.8);
 		padding: 1em;
 		border-radius: 5px;
@@ -113,7 +114,6 @@
 	<dd><li> Year over year view with timeline slider going back to 2014</li></dd>
 	<p>	</p>
 	
-<!-- define how we decide what to include / exclude -->
 
 
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
@@ -155,8 +155,8 @@
 					r="5" 
 					fill={colorScale(rental.OWNER)}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-    				on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
-    				on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}				
+					on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
+					on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}				
 				/> 
 		
 			{/each}
@@ -166,3 +166,5 @@
 </div>
 
 <p>* Relevant is defined using..</p>
+
+<!-- define how we decide what to include / exclude -->
