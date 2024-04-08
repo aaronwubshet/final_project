@@ -19,7 +19,7 @@
 			interactive: true
 		});
 		await new Promise(resolve => map.on("load", resolve));
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv?token=GHSAT0AAAAAACQULPLS447HQWOXE7A6GGQGZQTLL2A");
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv");
 		// TODO consolidate data and only have fields we need
 		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
 		
