@@ -20,7 +20,7 @@
 		});
 		await new Promise(resolve => map.on("load", resolve));
 		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLSRPEN6IY2Y3IVZHHEZQTJR5Q");
-		//TODO consolidate data and only have fields we need
+		// TODO consolidate data and only have fields we need
 		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
 		
 	})
@@ -33,9 +33,9 @@
 	
 	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 	$: map?.on("move", evt => mapViewChanged++);
-	
+	let hoveredOwner = null;
 	let hoveredIndex = -1;
-	$: hoveredRental = rentals[hoveredIndex] ?? hoveredRental ?? {};
+	// $: hoveredRental = rentals[hoveredIndex] ?? hoveredRental ?? {};
 
 	// other features to add: time line slider, search functionality even if owner isnt top 10 for a score given an address\
 
@@ -96,8 +96,9 @@
 		}
 	}
 
-
-
+	.grey {
+    	fill: grey !important;
+  	}
 </style>
 
 <svelte:head>
@@ -105,8 +106,13 @@
 </svelte:head>
 
 <h1>Who Owns Boston?</h1>
-<p>Below is a map of Boston with the properties owned by the top 10 owners highlighted in different colors {rentals.OWNER}</p>
-<p>Hover over a circle to see details about the owner of the property</p>
+<p>Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors.</p>
+<dl>Features coming soon!!</dl>
+	<dd><li> Hover over a circle owned by a top 10 owner to see details about the property and it's owner </li></dd>
+	<dd><li> Address searching functionality </li></dd>
+	<dd><li> Year over year view with timeline slider going back to 2014</li></dd>
+	<p>	</p>
+	
 <!-- define how we decide what to include / exclude -->
 
 
@@ -148,8 +154,9 @@
 					cy={ getCoords(rental).cy }
 					r="5" 
 					fill={colorScale(rental.OWNER)}
-					on:mouseenter={evt => hoveredIndex = 0}
-					on:mouseleave={evt => hoveredIndex = -1}
+					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
+    				on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
+    				on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}				
 				/> 
 		
 			{/each}
@@ -158,3 +165,4 @@
 
 </div>
 
+<p>* Relevant is defined using..</p>
