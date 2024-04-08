@@ -19,9 +19,7 @@
 			interactive: false
 		});
 		await new Promise(resolve => map.on("load", resolve));
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLT2XVQQ2BZ3EXJWIUQZQTHSWA");
-		// https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/dataset.csv?token=GHSAT0AAAAAACQULPLTVEEFEROYS4OZHXE2ZQTFKNQ") 
-
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/top10.csv?token=GHSAT0AAAAAACQULPLSRPEN6IY2Y3IVZHHEZQTJR5Q");
 		//TODO consolidate data and only have fields we need
 		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
 		
@@ -60,6 +58,12 @@
 		grid-template-columns: auto 1fr;
 		margin: 0;
 		gap: 0.5em;
+		transition-duration: 500ms;
+		transition-property: opacity, visibility;
+		&[hidden]:not(:hover, :focus-within) {
+			opacity: 0;
+			visibility: hidden;
+		}
 	}
 
 	dl.info dt {
@@ -76,6 +80,11 @@
 		position: fixed;
 		top: 5em;
 		right: 45em;
+		background-color: hsla(100, 0%, 100%, 0.8);
+		padding: 1em;
+		border-radius: 5px;
+		box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+		backdrop-filter: blur(10px);
 	}
 	circle {
 		transition: 200ms;
@@ -83,6 +92,7 @@
 		transform-box: fill-box;
 		&:hover {
 			transform: scale(3);
+
 		}
 	}
 
@@ -98,7 +108,9 @@
 <p>Below is a map of Boston with the properties owned by the top 10 owners highlighted in different colors {rentals.OWNER}</p>
 <p>Hover over a circle to see details about the owner of the property</p>
 <!-- define how we decide what to include / exclude -->
-<dl id="commit-tooltip" class="info tooltip">
+
+
+<dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
 	<dt>Number of properties:</dt>
 	<dd>...</dd>
 
@@ -136,7 +148,7 @@
 					cy={ getCoords(rental).cy }
 					r="5" 
 					fill={colorScale(rental.OWNER)}
-					on:mouseenter={evt => hoveredIndex = index}
+					on:mouseenter={evt => hoveredIndex = 0}
 					on:mouseleave={evt => hoveredIndex = -1}
 				/> 
 		
