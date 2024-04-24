@@ -2,31 +2,82 @@
 	import * as d3 from 'd3';
 	import mapboxgl from "mapbox-gl";
 	import "../../node_modules/mapbox-gl/dist/mapbox-gl.css";
-	mapboxgl.accessToken = "pk.eyJ1IjoiYXd1YnNoZXQiLCJhIjoiY2x1b2tiamFpMjAzMjJqbzN6NGQ3bjdwcyJ9.ipL3t_Mw0hLMfZJCF4oW3w";
 	import { onMount } from "svelte";
-	
+
+	// overall variables
+	let rentals = [];
+	mapboxgl.accessToken = "pk.eyJ1IjoiYXd1YnNoZXQiLCJhIjoiY2x1b2tiamFpMjAzMjJqbzN6NGQ3bjdwcyJ9.ipL3t_Mw0hLMfZJCF4oW3w";
+	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+	//search variables
 	let query = "";
 
-	let mapViewChanged = 0;
+	//time filter variables
+	let timeFilterLabel;
+	let filterYear = 2024; //initial filter year
 
+	//map object and view change counter
+	let map2;
+	let mapViewChanged2 = 0;
+	let mapViewChanged = 0;
 	let map;
-	let rentals = [];
+	
+	//tool tip and ciricle selection variables
+	let hoveredOwner = null;
+	let hoveredIndex = -1;
+	
+	let totalPropertiesByOwner;
+	let totalProperties = 0;
+
+	let percentageOfTotalProperties = 0;
+	let averageTotalValue = 0;
+	let ownerRentals;
+	let totalValue = 0;
+	
 
 	onMount( async() => {
+		// create map object
 		map  = new mapboxgl.Map({
 			container: "map",
 			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
 			zoom: 11.5,
 			center: [-71.0589,42.3601],
 			interactive: true
+		}); 
+		await new Promise(resolve => map.on("load", resolve)); // wait until the map is fully loaded before start next map 
+
+		// create map object
+		map2  = new mapboxgl.Map({
+			container: "map2",
+			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
+			zoom: 11.5,
+			center: [-71.0589,42.3601],
+			interactive: true
 		});
-		await new Promise(resolve => map.on("load", resolve));
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv");
+		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
+		
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv", row => ({
+        ...row,
+        _id: Number(row._id), // or just +row.line
+        Lat: Number(row.Lat),
+		Long: Number(row.Long),
+		TOTAL_VALUE: +row.TOTAL_VALUE,
+		YR_BUILT: Number(row.YR_BUILT),
+		Evict_rate: Number(row.Evict_rate),
+		Code_violation_count: Number(row.Code_violation_count),
+		Likelihood_of_purchase: Number(row.Likelihood_of_purchase),
+		Landlord_score: Number(row.Landlord_score),
+		Top_10_owner: Number(row.Top_10_owner)
+        }) ); // load data
+
 		// TODO consolidate data and only have fields we need
-		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
+		
+		
 		
 	})
 	
+
+	// two getCoords functions one for each map
 	function getCoords (rental) {
 		let point = new mapboxgl.LngLat(+rental.Long, +rental.Lat);
 		let {x, y} = map.project(point);
@@ -39,46 +90,42 @@
 		return {cx: x, cy: y};
 	}
 	
-	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-	$: map?.on("move", evt => mapViewChanged++);
-	let hoveredOwner = null;
-	let hoveredIndex = -1;
-	
-	let totalProperties = 0;
-	let percentageOfTotalProperties = 0;
-	let averageTotalValue = 0;
-	function handleMouseEnter(rental) {
-		hoveredOwner = rental.OWNER;
-		totalProperties = rentals.filter(r => r.OWNER === hoveredOwner).length;
-		percentageOfTotalProperties = (totalProperties / rentals.length) * 100;
-		const ownerRentals = rentals.filter(r => r.OWNER === hoveredOwner);
-    	const totalValue = ownerRentals.reduce((sum, r) => sum + +r.TOTAL_VALUE, 0);
-    	averageTotalValue = totalValue / ownerRentals.length;
+	function handleMouseExit(rental, evt) {
+		hoveredIndex = -1;
+		hoveredOwner = null;
 	}
 
-	let map2;
-	let mapViewChanged2 = 0;
-	
-	onMount( async() => {
-		map2  = new mapboxgl.Map({
-			container: "map2",
-			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
-			zoom: 11.5,
-			center: [-71.0589,42.3601],
-			interactive: true
-		});
-		await new Promise(resolve => map2.on("load", resolve));
-		map2?.on("move", evt => mapViewChanged2++);
-		//searchable map
-		// TODO consolidate data and only have fields we need
-		// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
+	// recalculate tooltip data when hovering over a circle
+	function handleMouseEnter(rental, evt) {
+		hoveredIndex = 0;
+		hoveredOwner = rental.Owner;
+		totalProperties = rentals.length;
+		totalPropertiesByOwner = rentals.filter(r => r.OWNER === hoveredOwner).length;
+		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
+		ownerRentals = rentals.filter(r => r.OWNER === hoveredOwner);
+    	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
+    	averageTotalValue = totalValue / ownerRentals.length;
 		
-	})
+		
+	}
 	
+	$: console.log(rentals[5]);
+	// update view change counter when either map is moved
+	$: map?.on("move", evt => mapViewChanged++); 
+	$: map2?.on("move", evt => mapViewChanged2++);
 	
-	// other features to add: time line slider, search functionality even if owner isnt top 10 for a score given an address\
-	let filterYear = new Date().getFullYear() - 10; // Set the initial filter year to 10 years ago
+	// Time filtering data being piped to the map
+
   	$: timeFilterLabel = new Date(filterYear, 0, 1).toLocaleString("en", {year: "numeric"}); // Update the time filter label whenever the filter year changes
+
+	// connect filterYear to actually filter dataset
+
+	// Search functionality
+
+	// Landlord score
+	// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
+
+
 </script>
 
 <style>
@@ -170,7 +217,7 @@
 <p></p>
 
 <h3> Interactive map of top 10 owners</h3>
-<p>Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors.</p>
+<p>Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
 <dl>Features coming soon!!</dl>
 	<dd><li> Hover over a circle owned by a top 10 owner to see details about the property and it's owner </li></dd>
 	<dd><li> Address searching functionality </li></dd>
@@ -181,7 +228,8 @@
 	
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
-<input id="year-slider" type="range" min={new Date().getFullYear() - 10} max={new Date().getFullYear()} step="1" bind:value={filterYear} />
+<input id="year-slider" type="range" min={2014} max={2024} step="1" bind:value={filterYear} />
+<p>	</p>
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
 	<dt>Number of properties:</dt>
 	<dd>{totalProperties}</dd>
@@ -222,11 +270,10 @@
 					cx={ getCoords(rental).cx }
 					cy={ getCoords(rental).cy }
 					r="5" 
-					fill={rental.Top_10_owner === "1" ? colorScale(rental.OWNER): "grey"}
+					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-					on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
-					on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}
-					on:mouseenter={() => handleMouseEnter(rental)}			
+					on:mouseleave={evt => handleMouseExit(rental, evt)}
+					on:mouseenter={evt => handleMouseEnter(rental,evt)}			
 				/> 
 			{/each}
 		{/key}
@@ -246,17 +293,19 @@
 	<h3>Impact on low income communities</h3>
 	<p>Impact on low income....</p>
 
-	<img src="images/graph2.png" alt="Image description" />
+	<img src="images/graph3.png" alt="Image description" />
 </div>
 
 <div id="article-section">	
-	<h3>Whaqt you can do</h3>
+	<h3>What you can do</h3>
 	<p>you have the power to influence the boston market for renters</p>
 	<p>do your research</p>
 
 	<img src="images/graph1.png" alt="Image description" />
 
 </div>
+
+
 <input class="search"
         type="search"
         bind:value="{query}"
@@ -271,7 +320,7 @@
 					cx={ getCoords2(rental).cx }
 					cy={ getCoords2(rental).cy }
 					r="5" 
-					fill={rental.Top_10_owner === "1" ? colorScale(rental.OWNER): "grey"}
+					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
 					on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
 					on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}
