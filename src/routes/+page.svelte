@@ -127,7 +127,10 @@
 
 	// connect filterYear to actually filter dataset
 	$: filteredRentals = rentals.filter(rental => rental.DATA_YR == filterYear);
+	
+	$:console.log(rentals);
 	$:console.log(filteredRentals);
+	$:console.log(filterYear);
 	// Search functionality
 
 	// Landlord score
@@ -269,12 +272,10 @@
 	<!-- TODO add connections to data source for field calculations  -->
 
 </dl>
-
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
 			{#each filteredRentals as rental, index (rental._id) }
-
 				<circle 
 					cx={ getCoords(rental).cx }
 					cy={ getCoords(rental).cy }
