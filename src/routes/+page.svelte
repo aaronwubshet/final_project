@@ -15,7 +15,7 @@
 
 	//time filter variables
 	let timeFilterLabel;
-	let filterYear = 2024; //initial filter year
+	let filterYear = 2023; //initial filter year
 
 	//map object and view change counter
 	let map2;
@@ -58,6 +58,7 @@
 			interactive: true
 		});
 		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
+		
 		// https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv
 		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/test_data.csv", row => ({
         ...row,
@@ -73,9 +74,7 @@
 		Top_10_owner: Number(row.Top_10_owner),
 		DATA_YR: Number(row.DATA_YR)
         }) ); // load data
-
 		// TODO consolidate data and only have fields we need
-		
 		
 		
 	})
@@ -117,6 +116,7 @@
 	
 	$: totalProperties = filteredRentals.length;
 	
+	$: console.log("total properties:", totalProperties);
 	
 	// update view change counter when either map is moved
 	$: map?.on("move", evt => mapViewChanged++); 
@@ -126,11 +126,10 @@
   	$: timeFilterLabel = new Date(filterYear, 0, 1).toLocaleString("en", {year: "numeric"}); // Update the time filter label whenever the filter year changes
 
 	// connect filterYear to actually filter dataset
-	$: filteredRentals = rentals.filter(rental => rental.DATA_YR == filterYear);
-	
-	$:console.log(rentals);
-	$:console.log(filteredRentals);
-	$:console.log(filterYear);
+	$: filteredRentals = rentals.filter(r => r.DATA_YR === filterYear);
+
+	$:console.log("filtered rentals:", filteredRentals);
+
 	// Search functionality
 
 	// Landlord score
