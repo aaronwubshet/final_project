@@ -9,7 +9,7 @@
 	mapboxgl.accessToken = "pk.eyJ1IjoiYXd1YnNoZXQiLCJhIjoiY2x1b2tiamFpMjAzMjJqbzN6NGQ3bjdwcyJ9.ipL3t_Mw0hLMfZJCF4oW3w";
 	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 	let format = d3.format(",.2f")
-
+	let filteredRentals = [];
 	//search variables
 	let query = "";
 
@@ -70,7 +70,8 @@
 		Code_violation_count: Number(row.Code_violation_count),
 		Likelihood_of_purchase: Number(row.Likelihood_of_purchase),
 		Landlord_score: Number(row.Landlord_score),
-		Top_10_owner: Number(row.Top_10_owner)
+		Top_10_owner: Number(row.Top_10_owner),
+		DATA_YR: Number(row.DATA_YR)
         }) ); // load data
 
 		// TODO consolidate data and only have fields we need
@@ -101,20 +102,20 @@
 	// recalculate tooltip data when hovering over a circle
 	function handleMouseEnter(index, evt) {
 		hoveredIndex = index;
-		hoveredOwner = rentals[hoveredIndex].OWNER;	
-		totalPropertiesByOwner = rentals.filter(r => r.OWNER === hoveredOwner).length;
+		hoveredOwner = filteredRentals[hoveredIndex].OWNER;	
+		totalPropertiesByOwner = filteredRentals.filter(r => r.OWNER === hoveredOwner).length;
 		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
-		ownerRentals = rentals.filter(r => r.OWNER === hoveredOwner);
+		ownerRentals = filteredRentals.filter(r => r.OWNER === hoveredOwner);
     	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
     	averageTotalValue = totalValue / ownerRentals.length;
-		yearBuilt = rentals[hoveredIndex].YR_BUILT;
+		yearBuilt = filteredRentals[hoveredIndex].YR_BUILT;
 		avgEvictRate = d3.mean(ownerRentals, r => +r.Evict_rate);
 		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
 		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
 	}
 	
-	$: totalProperties = rentals.length;
+	$: totalProperties = filteredRentals.length;
 	
 	
 	// update view change counter when either map is moved
@@ -122,11 +123,11 @@
 	$: map2?.on("move", evt => mapViewChanged2++);
 	
 	// Time filtering data being piped to the map
-
   	$: timeFilterLabel = new Date(filterYear, 0, 1).toLocaleString("en", {year: "numeric"}); // Update the time filter label whenever the filter year changes
 
 	// connect filterYear to actually filter dataset
-
+	$: filteredRentals = rentals.filter(rental => rental.DATA_YR == filterYear);
+	$: console.log(filterYear);
 	// Search functionality
 
 	// Landlord score
@@ -272,7 +273,7 @@
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
-			{#each rentals as rental, index (rental._id) }
+			{#each filteredRentals as rental, index (rental._id) }
 
 				<circle 
 					cx={ getCoords(rental).cx }
@@ -323,7 +324,7 @@
 <div id="map2">	
 	<svg>
 		{#key mapViewChanged2}
-			{#each rentals as rental }
+			{#each filteredRentals as rental }
 				<circle 
 					cx={ getCoords2(rental).cx }
 					cy={ getCoords2(rental).cy }
