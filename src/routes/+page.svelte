@@ -15,7 +15,7 @@
 
 	//time filter variables
 	let timeFilterLabel;
-	let filterYear = 2023; //initial filter year
+	let filterYear = 2024; //initial filter year
 
 	//map object and view change counter
 	let map2;
