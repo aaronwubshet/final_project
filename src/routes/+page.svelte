@@ -58,8 +58,8 @@
 			interactive: true
 		});
 		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
-		
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv", row => ({
+		// https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/test_data.csv", row => ({
         ...row,
         _id: Number(row._id), // or just +row.line
         Lat: Number(row.Lat),
@@ -127,7 +127,7 @@
 
 	// connect filterYear to actually filter dataset
 	$: filteredRentals = rentals.filter(rental => rental.DATA_YR == filterYear);
-	$: console.log(filterYear);
+	$:console.log(filteredRentals);
 	// Search functionality
 
 	// Landlord score
