@@ -8,6 +8,7 @@
 	let rentals = [];
 	mapboxgl.accessToken = "pk.eyJ1IjoiYXd1YnNoZXQiLCJhIjoiY2x1b2tiamFpMjAzMjJqbzN6NGQ3bjdwcyJ9.ipL3t_Mw0hLMfZJCF4oW3w";
 	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+	let format = d3.format(",.2f")
 
 	//search variables
 	let query = "";
@@ -25,15 +26,17 @@
 	//tool tip and ciricle selection variables
 	let hoveredOwner = null;
 	let hoveredIndex = -1;
-	
-	let totalPropertiesByOwner;
+	let totalPropertiesByOwner= 0;
 	let totalProperties = 0;
-
 	let percentageOfTotalProperties = 0;
 	let averageTotalValue = 0;
-	let ownerRentals;
+	let ownerRentals =[];
 	let totalValue = 0;
-	
+	let yearBuilt = 0;
+	let avgEvictRate = 0;
+	let totalCodeViolations = 0;
+	let futurePurchaseProbability = 0;
+	let landlordScore = 0;
 
 	onMount( async() => {
 		// create map object
@@ -90,26 +93,30 @@
 		return {cx: x, cy: y};
 	}
 	
-	function handleMouseExit(rental, evt) {
+	function handleMouseExit(index, evt) {
 		hoveredIndex = -1;
 		hoveredOwner = null;
 	}
 
 	// recalculate tooltip data when hovering over a circle
-	function handleMouseEnter(rental, evt) {
-		hoveredIndex = 0;
-		hoveredOwner = rental.Owner;
-		totalProperties = rentals.length;
+	function handleMouseEnter(index, evt) {
+		hoveredIndex = index;
+		hoveredOwner = rentals[hoveredIndex].OWNER;	
 		totalPropertiesByOwner = rentals.filter(r => r.OWNER === hoveredOwner).length;
 		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
 		ownerRentals = rentals.filter(r => r.OWNER === hoveredOwner);
     	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
     	averageTotalValue = totalValue / ownerRentals.length;
-		
-		
+		yearBuilt = rentals[hoveredIndex].YR_BUILT;
+		avgEvictRate = d3.mean(ownerRentals, r => +r.Evict_rate);
+		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
+		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
+		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
 	}
 	
-	$: console.log(rentals[5]);
+	$: totalProperties = rentals.length;
+	
+	
 	// update view change counter when either map is moved
 	$: map?.on("move", evt => mapViewChanged++); 
 	$: map2?.on("move", evt => mapViewChanged2++);
@@ -232,31 +239,31 @@
 <p>	</p>
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
 	<dt>Number of properties:</dt>
-	<dd>{totalProperties}</dd>
+	<dd>{totalPropertiesByOwner}</dd>
 
 	<dt>Percentage of total properties:</dt>
 	<dd>{percentageOfTotalProperties.toFixed(2)}%</dd>
 
 	<dt>Average total value:</dt>
-	<dd>${averageTotalValue.toFixed(2)}</dd>
+	<dd>${format(averageTotalValue)}</dd>
 
 	<dt>Sum Total Value:</dt>
-	<dd>...</dd>
+	<dd>${format(totalValue)}</dd>
 
 	<dt>Year Built:</dt>
-	<dd>...</dd>
+	<dd>{yearBuilt}</dd>
 
 	<dt>Eviction rate:</dt>
-	<dd>...</dd>
+	<dd>{avgEvictRate.toFixed(2)}%</dd>
 
 	<dt>Code violations:</dt>
-	<dd>...</dd>
+	<dd>{totalCodeViolations}</dd>
 
-	<dt>Estimated probabilty of property to be purchased by a top 10 owner in the future:</dt>
-	<dd>...</dd>
+	<dt>Future purchase probability^:</dt>
+	<dd>{futurePurchaseProbability.toFixed(2)}%</dd>
 
 	<dt>Overall Landlord Score:</dt>
-	<dd>...</dd>
+	<dd>{landlordScore}</dd>
 
 	<!-- TODO add connections to data source for field calculations  -->
 
@@ -265,15 +272,16 @@
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
-			{#each rentals as rental }
+			{#each rentals as rental, index (rental._id) }
+
 				<circle 
 					cx={ getCoords(rental).cx }
 					cy={ getCoords(rental).cy }
 					r="5" 
 					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-					on:mouseleave={evt => handleMouseExit(rental, evt)}
-					on:mouseenter={evt => handleMouseEnter(rental,evt)}			
+					on:mouseleave={evt => handleMouseExit(index, evt)}
+					on:mouseenter={evt => handleMouseEnter(index,evt)}			
 				/> 
 			{/each}
 		{/key}
@@ -322,9 +330,6 @@
 					r="5" 
 					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-					on:mouseenter={evt => { hoveredIndex = 0; hoveredOwner = rental.OWNER; }}
-					on:mouseleave={evt => { hoveredIndex = -1; hoveredOwner = null; }}
-					on:mouseenter={() => handleMouseEnter(rental)}	
 					/>
 			{/each}
 		{/key}
@@ -335,5 +340,6 @@
 <!-- {rental.Top_10_owner === "1" ? colorScale(rental.OWNER): "grey"}		 -->
 <div id="footer">
 <p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
+<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future</p>
 </div>
 <!-- define how we decide what to include / exclude -->
