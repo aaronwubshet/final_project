@@ -10,8 +10,12 @@
 	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 	let format = d3.format(",.2f")
 	let filteredRentals = [];
+
 	//search variables
 	let query = "";
+	let addressArray = [];
+	let values;
+	let searchedRentals = [];
 
 	//time filter variables
 	let timeFilterLabel;
@@ -127,41 +131,14 @@
 	$: filteredRentals = rentals.filter(r => r.DATA_YR === filterYear);
 
 
-	// $: console.log(searchedRentals);	
 	// Search functionality
-	let searchedRentals = [];
-	let values="";
-	// $: console.log("values:", values);
-	$: console.log("query:", query);
-	$: console.log("search results:", searchedRentals);	
-
-	// $: console.log(searchedRentals[5] ? searchedRentals[5].ADDRESS: "no address found");
-	// $: searchedRentals = rentals.filter((rental) => {
-	// 	values = Object.values(rental.ADDRESS).join("\n").toLowerCase();
-	// 	return values.includes(query.toLowerCase());            
-    //     });
-	// $: console.log(rentals[5]? Object.values(rentals[5].ADDRESS).join("").toLowerCase() : "no address found");
-	let addressArray = [];
-	let xy;
-	let out;
 	$:{
 		addressArray = rentals.map(rental => rental.ADDRESS.toLowerCase());
-		out = addressArray.filter(address => address.includes(query.toLowerCase()));
-		searchedRentals = rentals.filter(rental => out.includes(rental.ADDRESS.toLowerCase()));
+		values = addressArray.filter(address => address.includes(query.toLowerCase()));
+		searchedRentals = rentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
-	$:console.log(addressArray);
-	$:console.log("out is", out);
-	$:console.log("search results:", searchedRentals);
-	// $: searchedRentals = rentals.filter(rental => rental.ADDRESS.join("").includes(query.toLowerCase()));
 	
-	// {
-	// 	let values = Object.values(rental.ADDRESS).join("\n").toLowerCase();
-	// 	return values ? values.includes(query.toLowerCase()) : false;            
-	// });
-	// $:{
-	// 	let values = Object.values(rental.ADDRESS).join("\n").toLowerCase();
-	// 	values ? values.includes(query.toLowerCase()) : false;            
-	// }
+	
 
 	// Landlord score
 	// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
