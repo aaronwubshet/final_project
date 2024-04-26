@@ -116,7 +116,6 @@
 	
 	$: totalProperties = filteredRentals.length;
 	
-	$: console.log("total properties:", totalProperties);
 	
 	// update view change counter when either map is moved
 	$: map?.on("move", evt => mapViewChanged++); 
@@ -124,13 +123,17 @@
 	
 	// Time filtering data being piped to the map
   	$: timeFilterLabel = new Date(filterYear, 0, 1).toLocaleString("en", {year: "numeric"}); // Update the time filter label whenever the filter year changes
-
 	// connect filterYear to actually filter dataset
 	$: filteredRentals = rentals.filter(r => r.DATA_YR === filterYear);
 
-	$:console.log("filtered rentals:", filteredRentals);
-
+	
 	// Search functionality
+	let searchedRentals;
+	$: searchedRentals = rentals.filter((rental) => {
+		let values = Object.values(rental.ADDRESS).join("\n").toLowerCase();
+		return values.includes(query.toLowerCase());            
+        });
+
 
 	// Landlord score
 	// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
@@ -324,7 +327,7 @@
 <div id="map2">	
 	<svg>
 		{#key mapViewChanged2}
-			{#each filteredRentals as rental }
+			{#each searchedRentals as rental }
 				<circle 
 					cx={ getCoords2(rental).cx }
 					cy={ getCoords2(rental).cy }
