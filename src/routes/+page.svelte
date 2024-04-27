@@ -107,7 +107,6 @@
 	function handleMouseEnter(index) {
 		hoveredIndex = index;
 		console.log(hoveredIndex);
-		console.log(filteredRentals);
 		hoveredOwner = filteredRentals[hoveredIndex].OWNER;	
 		totalPropertiesByOwner = filteredRentals.filter(r => r.OWNER === hoveredOwner).length;
 		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
@@ -133,9 +132,9 @@
 
 	// Search functionality
 	$:{
-		addressArray = rentals.map(rental => rental.ADDRESS.toLowerCase());
+		addressArray = filteredRentals.map(rental => rental.ADDRESS.toLowerCase());
 		values = addressArray.filter(address => address.includes(query.toLowerCase()));
-		searchedRentals = rentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
+		searchedRentals = filteredRentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
 
 	function handleMouseExit2() {
@@ -369,6 +368,7 @@
         aria-label="Search projects"
         placeholder="🔍 Search projects…"
 />
+<p>	</p>
 <div id="map2">	
 	<svg>
 		{#key mapViewChanged2}
@@ -379,8 +379,8 @@
 					r="5" 
 					fill={"grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-					on:mouseleave={evt => handleMouseExit2()}
-					on:mouseenter={evt => handleMouseEnter2(index)}
+					on:mouseleave={evt => handleMouseExit()}
+					on:mouseenter={evt => handleMouseEnter(index)}
 					/>
 			{/each}
 		{/key}
