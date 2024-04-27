@@ -97,15 +97,17 @@
 		return {cx: x, cy: y};
 	}
 	
-	function handleMouseExit(index, evt) {
+	function handleMouseExit() {
 		hoveredIndex = -1;
 		hoveredOwner = null;
 	}
 
 	// recalculate tooltip data when hovering over a circle
-	function handleMouseEnter(index, evt) {
+	$: totalProperties = filteredRentals.length;
+	function handleMouseEnter(index) {
 		hoveredIndex = index;
 		hoveredOwner = filteredRentals[hoveredIndex].OWNER;	
+		console.log(index);
 		totalPropertiesByOwner = filteredRentals.filter(r => r.OWNER === hoveredOwner).length;
 		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
 		ownerRentals = filteredRentals.filter(r => r.OWNER === hoveredOwner);
@@ -117,9 +119,6 @@
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
 		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
 	}
-	
-	$: totalProperties = filteredRentals.length;
-	
 	
 	// update view change counter when either map is moved
 	$: map?.on("move", evt => mapViewChanged++); 
@@ -137,12 +136,20 @@
 		values = addressArray.filter(address => address.includes(query.toLowerCase()));
 		searchedRentals = rentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
-	
-	
+	// let hackyExit = 0;
+	// $: if (searchedRentals.length === 1) {
+	// 	handleMouseEnter(searchedRentals._id);
+	// 	hackyExit = 1;
+	// }
+	// $: console.log(searchedRentals);
+	// $: if (hackyExit ===1 && searchedRentals.length >1){
+	// 	handleMouseExit(searchedRentals._id);
+	// 	hackyExit = 0;
+	// }
 
 	// Landlord score
 	// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
-
+	//similarity score?
 
 </script>
 
@@ -203,6 +210,12 @@
 		box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
 		backdrop-filter: blur(10px);
 	}
+
+	#commit-tooltip h3 {
+        text-align: center;
+        grid-column: 1 / -1;
+    }
+
 	circle {
 		transition: 200ms;
 		transform-origin: center;
@@ -249,6 +262,9 @@
 <input id="year-slider" type="range" min={2014} max={2024} step="1" bind:value={filterYear} />
 <p>	</p>
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
+	<h3>Owner Facts</h3>
+	
+
 	<dt>Number of properties:</dt>
 	<dd>{totalPropertiesByOwner}</dd>
 
@@ -261,8 +277,8 @@
 	<dt>Sum Total Value:</dt>
 	<dd>${format(totalValue)}</dd>
 
-	<dt>Year Built:</dt>
-	<dd>{yearBuilt}</dd>
+	<!-- <dt>Year Built:</dt>
+	<dd>{yearBuilt}</dd> -->
 
 	<dt>Eviction rate:</dt>
 	<dd>{avgEvictRate.toFixed(2)}%</dd>
@@ -276,7 +292,6 @@
 	<dt>Overall Landlord Score:</dt>
 	<dd>{landlordScore}</dd>
 
-	<!-- TODO add connections to data source for field calculations  -->
 
 </dl>
 <div id="map">	
@@ -289,8 +304,8 @@
 					r="5" 
 					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-					on:mouseleave={evt => handleMouseExit(index, evt)}
-					on:mouseenter={evt => handleMouseEnter(index,evt)}			
+					on:mouseleave={evt => handleMouseExit()}
+					on:mouseenter={evt => handleMouseEnter(index)}			
 				/> 
 			{/each}
 		{/key}
@@ -332,13 +347,15 @@
 <div id="map2">	
 	<svg>
 		{#key mapViewChanged2}
-			{#each searchedRentals as rental }
+			{#each searchedRentals as rental, index (rental._id) }
 				<circle 
 					cx={ getCoords2(rental).cx }
 					cy={ getCoords2(rental).cy }
 					r="5" 
-					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
+					fill={"grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
+					on:mouseleave={evt => handleMouseExit()}
+					on:mouseenter={evt => handleMouseEnter(index)}
 					/>
 			{/each}
 		{/key}
@@ -346,7 +363,6 @@
 
 </div>
 
-<!-- {rental.Top_10_owner === "1" ? colorScale(rental.OWNER): "grey"}		 -->
 <div id="footer">
 <p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
 <p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future</p>
