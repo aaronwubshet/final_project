@@ -106,8 +106,9 @@
 	$: totalProperties = filteredRentals.length;
 	function handleMouseEnter(index) {
 		hoveredIndex = index;
+		console.log(hoveredIndex);
+		console.log(filteredRentals);
 		hoveredOwner = filteredRentals[hoveredIndex].OWNER;	
-		console.log(index);
 		totalPropertiesByOwner = filteredRentals.filter(r => r.OWNER === hoveredOwner).length;
 		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
 		ownerRentals = filteredRentals.filter(r => r.OWNER === hoveredOwner);
@@ -136,16 +137,36 @@
 		values = addressArray.filter(address => address.includes(query.toLowerCase()));
 		searchedRentals = rentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
-	// let hackyExit = 0;
-	// $: if (searchedRentals.length === 1) {
-	// 	handleMouseEnter(searchedRentals._id);
-	// 	hackyExit = 1;
-	// }
-	// $: console.log(searchedRentals);
-	// $: if (hackyExit ===1 && searchedRentals.length >1){
-	// 	handleMouseExit(searchedRentals._id);
-	// 	hackyExit = 0;
-	// }
+
+	function handleMouseExit2() {
+		hoveredIndex = -1;
+		hoveredOwner = null;
+	}
+
+	// recalculate tooltip data when search has a single address
+	function handleMouseEnter2(index) {
+		hoveredIndex = index;
+		hoveredOwner = searchedRentals[0].OWNER;	
+		totalPropertiesByOwner = searchedRentals.filter(r => r.OWNER === hoveredOwner).length;
+		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
+		ownerRentals = searchedRentals.filter(r => r.OWNER === hoveredOwner);
+    	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
+    	averageTotalValue = totalValue / ownerRentals.length;
+		yearBuilt = searchedRentals[0].YR_BUILT;
+		avgEvictRate = d3.mean(ownerRentals, r => +r.Evict_rate);
+		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
+		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
+		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
+	}
+	let hackyExit = 0;
+	$: if (searchedRentals.length === 1 && hackyExit===0) {
+		handleMouseEnter2(searchedRentals[0]._id);
+		hackyExit = 1;
+	}
+	$: if (hackyExit ===1 && searchedRentals.length >1){
+		handleMouseExit2(searchedRentals[0]._id);
+		hackyExit = 0;
+	}
 
 	// Landlord score
 	// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
@@ -354,8 +375,8 @@
 					r="5" 
 					fill={"grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
-					on:mouseleave={evt => handleMouseExit()}
-					on:mouseenter={evt => handleMouseEnter(index)}
+					on:mouseleave={evt => handleMouseExit2()}
+					on:mouseenter={evt => handleMouseEnter2(index)}
 					/>
 			{/each}
 		{/key}
