@@ -141,6 +141,8 @@
 	function handleMouseExit2() {
 		hoveredIndex = -1;
 		hoveredOwner = null;
+	    map2.setCenter([-71.0589,42.3601]);
+
 	}
 
 	// recalculate tooltip data when search has a single address
@@ -157,6 +159,9 @@
 		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
 		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
+		let rental = searchedRentals[0];
+	    map2.setCenter([rental.Long, rental.Lat]);
+
 	}
 	let hackyExit = 0;
 	$: if (searchedRentals.length === 1 && hackyExit===0) {
@@ -354,8 +359,8 @@
 
 <div id="article-section">	
 	<h3>Check Your Address!</h3>
-	<p>With all the data we have access to we've been able to calculate a landlord score</p>
-	<p>do your research</p>
+	<p>With all the data we have access to we've been able to calculate a landlord score for many landlords using data about code violations, evictions, corporate ownership patterns, etc. </p>
+	<p>Type in your address to check your landlord's score!</p>
 
 </div>
 <input class="search"
