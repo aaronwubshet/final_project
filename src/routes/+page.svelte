@@ -270,13 +270,7 @@
 
 <h3> Interactive map of top 10 owners</h3>
 <p>Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
-<dl>Features coming soon!!</dl>
-	<dd><li> Hover over a circle owned by a top 10 owner to see details about the property and it's owner </li></dd>
-	<dd><li> Address searching functionality </li></dd>
-	<dd><li> Year over year view with timeline slider going back to 2014</li></dd>
-	<dd><li> More comprehensive set of data points (approximately 2,000 shown below)</li></dd>
-	<dd><li> Zoom and interactive flexibility + other bug fixes</li></dd>
-	<p>	</p>
+<p>	</p>
 	
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
@@ -358,7 +352,12 @@
 
 </div>
 
+<div id="article-section">	
+	<h3>Check Your Address!</h3>
+	<p>With all the data we have access to we've been able to calculate a landlord score</p>
+	<p>do your research</p>
 
+</div>
 <input class="search"
         type="search"
         bind:value="{query}"
