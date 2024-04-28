@@ -1,3 +1,8 @@
+<!-- TODO color scheme/ make it pretty -->
+<!-- TODO add other resources section-->
+<!-- TODO error message for no results on map search-->
+<!-- TODO add graphs/images for story part in between the maps-->
+<!-- TODO define how we decide what to include / exclude and how score is calculated-->
 <script>
 	import * as d3 from 'd3';
 	import mapboxgl from "mapbox-gl";
@@ -201,7 +206,12 @@
 		height: 700px;
 		pointer-events: none;
 	}
-
+	.article-section {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		margin: 0;
+		gap: 0.5em;
+	}
 	dl.info {
 		display: grid;
 		grid-template-columns: auto 1fr;
@@ -260,6 +270,7 @@
 			width: 100%;
 			font-size: 2em;
 	}
+	
 </style>
 
 <svelte:head>
@@ -333,22 +344,16 @@
 </div>
 
 <div id="article-section">	
-	<h3>Eviction rates</h3>
+	<h3>Eviction rates and low income communities and corporate landords</h3>
 	<p>Eviction rates are important for...</p>
 
-	<img src="images/graph1.png" alt="Image description" />
+	<img src="images/graph1.png" alt="Image description" style= "width: 100%"/>
 
 </div>
 
-<div id="article-section">	
-	<h3>Impact on low income communities</h3>
-	<p>Impact on low income....</p>
-
-	<img src="images/graph3.png" alt="Image description" />
-</div>
 
 <div id="article-section">	
-	<h3>What you can do</h3>
+	<h3>Resources to help you</h3>
 	<p>you have the power to influence the boston market for renters</p>
 	<p>do your research</p>
 
@@ -385,6 +390,12 @@
 			{/each}
 		{/key}
 	</svg>
+</div>
+
+<div id="article-section">	
+	<h3>Future work</h3>
+	<p>Understanding rent data and trends</p>
+	<p>Partner with zillows</p>
 
 </div>
 
@@ -392,4 +403,3 @@
 <p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
 <p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future</p>
 </div>
-<!-- define how we decide what to include / exclude -->
