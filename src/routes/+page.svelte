@@ -1,4 +1,3 @@
-<!-- TODO color scheme/ make it pretty -->
 <!-- TODO consolidate data and only have fields we need -->
 
 <script>
@@ -279,19 +278,18 @@
 	<title>Who Owns Boston?</title>
 </svelte:head>
 
-<h1>Who Owns Boston? (and why you need to know them before signing your lease) </h1>
+<h1>Who Owns Boston? (& why you should know them before signing a lease) </h1>
 
 <h3> Introduction</h3>
 <p> Boston is a city with a rich history and a diverse population. It is also a city with a high cost of living and a competitive rental market. In recent years, the city has seen a surge in the number of rental properties owned by large companies and investment firms. These companies, often referred to as "corporate landlords," own thousands of rental units in the city and have a significant impact on the local rental market. </p>
 <p></p>
 
 <h3> Interactive map of top 10 owners</h3>
-<p>Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
-<p>	
-	<img src="images/top10owners.png" alt="table of top 10 owners in boston" style = "width: 100%"/>
-
+<p>There is significant concentration of rental property ownership in the Boston area. About <em>~40%</em> of all units are held by the top 10 owners. The table below summarizes the breakdown</p>
+<p style="display: flex; justify-content: center;">	
+    <img src="images/top10owners.png" alt="table of top 10 owners in boston" style="width: 30%;" />
 </p>
-	
+<p>This concentration tends drive a power imbalance between tenants and landlords similar to the way a union functions but in the opposite direction (think oligpoloy). Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
 <input id="year-slider" type="range" min={2014} max={2024} step="1" bind:value={filterYear} />
@@ -350,16 +348,23 @@
 
 <div id="article-section">	
 	<h3>Eviction rates and low income communities and corporate landords</h3>
-	<p>Eviction rates are important for...</p>
+	<p>Lizzy to populate</p>
 
+	<p style="display: flex; justify-content: center;">	
+		<img src="images/evictions_over_time.png" alt="table of top 10 owners in boston" style = "width: 60%"/>
+	</p>
 
+	<p>Lizzy to populate</p>
 
-	<img src="images/evictions_over_time.png" alt="table of top 10 owners in boston" style = "width: 100%"/>
+	<p style="display: flex; justify-content: center;">	
+		<img src="images/corpown.png" alt="corporate ownership over time" style = "width: 60%"/>
+	</p>
 
-	<img src="images/corpown.png" alt="corporate ownership over time" style = "width: 80%"/>
+	<p>Lizzy to populate</p>
 
-	<img src="images/eviction_and_income.png" alt="Image description" style= "width: 100%"/>
-
+	<p style="display: flex; justify-content: center;">	
+		<img src="images/eviction_and_income.png" alt="Image description" style= "width: 60%"/>
+	</p>
 </div>
 
 
@@ -416,6 +421,8 @@
 </div>
 
 <div id="footer">
-<p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
-<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future. This was calculated using a machine learning model based on historic data. The key data used was filtered down based on land use area codes. </p>
+	<h4>Footnotes</h4>
+	<p> Data Sources</p>
+	<p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
+	<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future. This was calculated using a machine learning model based on historic data. The key data used was filtered down based on land use area codes. </p>
 </div>
