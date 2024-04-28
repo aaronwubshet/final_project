@@ -1,5 +1,6 @@
 <!-- TODO consolidate data and only have fields we need -->
-
+<!-- TODO lizzy to poppulat some of the sections -->
+<!-- TODO classification model -->
 <script>
 	import * as d3 from 'd3';
 	import mapboxgl from "mapbox-gl";
