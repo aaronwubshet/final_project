@@ -1,8 +1,6 @@
 <!-- TODO color scheme/ make it pretty -->
-<!-- TODO add other resources section-->
-<!-- TODO error message for no results on map search-->
-<!-- TODO add graphs/images for story part in between the maps-->
-<!-- TODO define how we decide what to include / exclude and how score is calculated-->
+<!-- TODO consolidate data and only have fields we need -->
+
 <script>
 	import * as d3 from 'd3';
 	import mapboxgl from "mapbox-gl";
@@ -21,6 +19,8 @@
 	let addressArray = [];
 	let values;
 	let searchedRentals = [];
+	let hackyExit = 0;
+	let errorMessage =  "";
 
 	//time filter variables
 	let timeFilterLabel;
@@ -83,7 +83,6 @@
 		Top_10_owner: Number(row.Top_10_owner),
 		DATA_YR: Number(row.DATA_YR)
         }) ); // load data
-		// TODO consolidate data and only have fields we need
 		
 		
 	})
@@ -149,6 +148,12 @@
 
 	}
 
+	$: if (searchedRentals.length === 0) {
+        errorMessage = "Sorry that address isn't in our database!";
+    } else {
+        errorMessage = "";
+    }
+
 	// recalculate tooltip data when search has a single address
 	function handleMouseEnter2(index) {
 		hoveredIndex = index;
@@ -167,7 +172,8 @@
 	    map2.setCenter([rental.Long, rental.Lat]);
 
 	}
-	let hackyExit = 0;
+
+	// when a search results in a single address, zoom in on that address and calculate the tooltip values by calling the handleMouseEnter2 function
 	$: if (searchedRentals.length === 1 && hackyExit===0) {
 		handleMouseEnter2(searchedRentals[0]._id);
 		hackyExit = 1;
@@ -176,10 +182,6 @@
 		handleMouseExit2(searchedRentals[0]._id);
 		hackyExit = 0;
 	}
-
-	// Landlord score
-	// calculate landlord score and likelihood to be purchased by a top 10 owner  in the next 5 years by using some clustering algorithms to determine similarity to current portfolio of properties owned by current top 10 owner
-	//similarity score?
 
 </script>
 
@@ -285,7 +287,10 @@
 
 <h3> Interactive map of top 10 owners</h3>
 <p>Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
-<p>	</p>
+<p>	
+	<img src="images/top10owners.png" alt="table of top 10 owners in boston" style = "width: 100%"/>
+
+</p>
 	
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
@@ -347,24 +352,35 @@
 	<h3>Eviction rates and low income communities and corporate landords</h3>
 	<p>Eviction rates are important for...</p>
 
-	<img src="images/graph1.png" alt="Image description" style= "width: 100%"/>
+
+
+	<img src="images/evictions_over_time.png" alt="table of top 10 owners in boston" style = "width: 100%"/>
+
+	<img src="images/corpown.png" alt="corporate ownership over time" style = "width: 80%"/>
+
+	<img src="images/eviction_and_income.png" alt="Image description" style= "width: 100%"/>
 
 </div>
 
 
 <div id="article-section">	
 	<h3>Resources to help you</h3>
-	<p>you have the power to influence the boston market for renters</p>
-	<p>do your research</p>
+	<p>While having this information is a pivotal first step to addressing the power imbalance between landlords and you as a renter, there is much more information and other resources that exist to help you. Below you will find a list of helpful links especially if you feel your rights as a tennent have been violated.</p>
+	<dl>
+		<h4>Helpful Links:</h4>
+		<dt><a href= "https://www.mass.gov/info-details/tenant-rights"> Tenant Rights</a> </dt>
+		<dt><a href= "https://www.mass.gov/guides/the-attorney-generals-guide-to-landlord-and-tenant-rights"> AG's Guide to Landlord and Tenant Rights</a> </dt>
+		<dt><a href= "https://www.mass.gov/info-details/finding-legal-help"> Finding Legal Aid</a> </dt>
+	</dl>
 
-	<img src="images/graph1.png" alt="Image description" />
+	
 
 </div>
 
 <div id="article-section">	
 	<h3>Check Your Address!</h3>
 	<p>With all the data we have access to we've been able to calculate a landlord score for many landlords using data about code violations, evictions, corporate ownership patterns, etc. </p>
-	<p>Type in your address to check your landlord's score!</p>
+	
 
 </div>
 <input class="search"
@@ -373,7 +389,9 @@
         aria-label="Search projects"
         placeholder="🔍 Search projects…"
 />
-<p>	</p>
+{#if errorMessage}
+    <p>{errorMessage}</p>
+{/if}
 <div id="map2">	
 	<svg>
 		{#key mapViewChanged2}
@@ -394,12 +412,10 @@
 
 <div id="article-section">	
 	<h3>Future work</h3>
-	<p>Understanding rent data and trends</p>
-	<p>Partner with zillows</p>
-
+	<p>A pivotal part of the renter's plight is the trend in rent prices over time. Thus a future step for this work would be acquiring more rent value data and understanding the trends and correlations with some of the key variables explored here. While this data is hard to come by or create, by partnering with websites like Zillow or StreetEasy we may be able to incorporate rent data.</p>
 </div>
 
 <div id="footer">
 <p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
-<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future</p>
+<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future. This was calculated using a machine learning model based on historic data. The key data used was filtered down based on land use area codes. </p>
 </div>
