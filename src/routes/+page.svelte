@@ -72,7 +72,7 @@
         _id: Number(row._id), // or just +row.line
         Lat: Number(row.lat_x),
 		Long: Number(row.lon_x),
-		TOTAL_VALUE: +row.TOTAL_VALUE,
+		TOTAL_VALUE: Number(row.TOTAL_VALUE),
 		YR_BUILT: Number(row.YR_BUILT),
 		Evict_rate: Number(row.evictions),
 		Code_violation_count: Number(row.code_violations),
@@ -106,9 +106,9 @@
 
 	// recalculate tooltip data when hovering over a circle
 	$: totalProperties = filteredRentals.length;
+	$:console.log(filteredRentals);
 	function handleMouseEnter(index) {
 		hoveredIndex = index;
-		console.log(hoveredIndex);
 		hoveredOwner = filteredRentals[hoveredIndex].OWNER;	
 		totalPropertiesByOwner = filteredRentals.filter(r => r.OWNER === hoveredOwner).length;
 		percentageOfTotalProperties = (totalPropertiesByOwner/totalProperties) * 100;
@@ -138,7 +138,6 @@
 		values = addressArray.filter(address => address.includes(query.toLowerCase()));
 		searchedRentals = filteredRentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
-	$:console.log(searchedRentals);
 	function handleMouseExit2() {
 		hoveredIndex = -1;
 		hoveredOwner = null;
