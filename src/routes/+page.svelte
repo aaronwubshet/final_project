@@ -137,7 +137,6 @@
 		values = addressArray.filter(address => address.includes(query.toLowerCase()));
 		searchedRentals = filteredRentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
-	$:console.log(searchedRentals);
 	function handleMouseExit2() {
 		hoveredIndex = -1;
 		hoveredOwner = null;
