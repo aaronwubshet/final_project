@@ -313,13 +313,13 @@
 	<dt>Eviction rate (Soon<sup>TM</sup>):</dt>
 	<dd>{avgEvictRate.toFixed(2)}%</dd>
 
-	<dt>Code violations (Soon<sup>TM</sup>):</dt>
+	<dt>Code violations:</dt>
 	<dd>{totalCodeViolations}</dd>
 
 	<dt>Future purchase probability^:</dt>
 	<dd>{(100*futurePurchaseProbability).toFixed(2)}%</dd>
 
-	<dt>Overall Landlord Score:</dt>
+	<dt>Overall Landlord Score(Soon<sup>TM</sup>):</dt>
 	<dd>{landlordScore}</dd>
 
 
