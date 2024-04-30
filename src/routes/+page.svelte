@@ -24,7 +24,7 @@
 
 	//time filter variables
 	let timeFilterLabel;
-	let filterYear = 2024; //initial filter year
+	let filterYear = 2022; //initial filter year
 
 	//map object and view change counter
 	let map2;
@@ -69,19 +69,19 @@
 		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
 		
 		// https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/test_data.csv", row => ({
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/compiled_output.csv", row => ({
         ...row,
         _id: Number(row._id), // or just +row.line
-        Lat: Number(row.Lat),
-		Long: Number(row.Long),
+        Lat: Number(row.lat_x),
+		Long: Number(row.lon_x),
 		TOTAL_VALUE: +row.TOTAL_VALUE,
 		YR_BUILT: Number(row.YR_BUILT),
-		Evict_rate: Number(row.Evict_rate),
-		Code_violation_count: Number(row.Code_violation_count),
-		Likelihood_of_purchase: Number(row.Likelihood_of_purchase),
-		Landlord_score: Number(row.Landlord_score),
+		Evict_rate: Number(row.evictions),
+		Code_violation_count: Number(row.code_violations),
+		Likelihood_of_purchase: Number(row.predictions),
+		Landlord_score: Number(row.score),
 		Top_10_owner: Number(row.Top_10_owner),
-		DATA_YR: Number(row.DATA_YR)
+		DATA_YR: Number(row.year)
         }) ); // load data
 		
 		
@@ -293,7 +293,7 @@
 <p>This concentration tends drive a power imbalance between tenants and landlords similar to the way a union functions but in the opposite direction (think oligpoloy). Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
-<input id="year-slider" type="range" min={2014} max={2024} step="1" bind:value={filterYear} />
+<input id="year-slider" type="range" min={2000} max={2022} step="1" bind:value={filterYear} />
 <p>	</p>
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
 	<h3>Owner Facts</h3>
