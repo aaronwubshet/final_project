@@ -52,8 +52,8 @@
 		map  = new mapboxgl.Map({
 			container: "map",
 			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
-			zoom: 11.5,
-			center: [-71.0589,42.3601],
+			zoom: 11.1,
+			center: [-71.0796673,42.3123147],
 			interactive: true
 		}); 
 		await new Promise(resolve => map.on("load", resolve)); // wait until the map is fully loaded before start next map 
@@ -62,8 +62,8 @@
 		map2  = new mapboxgl.Map({
 			container: "map2",
 			style: "mapbox://styles/awubshet/cluolh0dx016601pbfkif17ra",
-			zoom: 11.5,
-			center: [-71.0589,42.3601],
+			zoom: 11.1,
+			center: [-71.0796673,42.3123147],
 			interactive: true
 		});
 		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
@@ -140,7 +140,7 @@
 		values = addressArray.filter(address => address.includes(query.toLowerCase()));
 		searchedRentals = filteredRentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
 	}
-
+	$:console.log(searchedRentals);
 	function handleMouseExit2() {
 		hoveredIndex = -1;
 		hoveredOwner = null;
@@ -331,7 +331,7 @@
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
-			{#each filteredRentals as rental, index (rental._id) }
+			{#each filteredRentals as rental, index}
 				<circle 
 					cx={ getCoords(rental).cx }
 					cy={ getCoords(rental).cy }
@@ -401,7 +401,7 @@
 <div id="map2">	
 	<svg>
 		{#key mapViewChanged2}
-			{#each searchedRentals as rental, index (rental._id) }
+			{#each searchedRentals as rental, index}
 				<circle 
 					cx={ getCoords2(rental).cx }
 					cy={ getCoords2(rental).cy }
