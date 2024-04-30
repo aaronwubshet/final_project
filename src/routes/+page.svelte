@@ -1,6 +1,4 @@
-<!-- TODO consolidate data and only have fields we need -->
-<!-- TODO lizzy to poppulat some of the sections -->
-<!-- TODO classification model -->
+<!-- TODO add landlord score, eviction data -->
 <script>
 	import * as d3 from 'd3';
 	import mapboxgl from "mapbox-gl";
@@ -290,7 +288,7 @@
 <p style="display: flex; justify-content: center;">	
     <img src="images/top10owners.png" alt="table of top 10 owners in boston" style="width: 30%;" />
 </p>
-<p>This concentration tends drive a power imbalance between tenants and landlords similar to the way a union functions but in the opposite direction (think oligpoloy). Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 10 years!</p>
+<p>This concentration tends drive a power imbalance between tenants and landlords similar to the way a union functions but in the opposite direction (think oligpoloy). Below is a map of Boston with the relevant* rental properties. Those owned by the top 20 are highlighted in different colors. Try out the slider to see how this has changed in the last 20+ years!</p>
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
 <input id="year-slider" type="range" min={2000} max={2022} step="1" bind:value={filterYear} />
