@@ -106,7 +106,6 @@
 
 	// recalculate tooltip data when hovering over a circle
 	$: totalProperties = filteredRentals.length;
-	$:console.log(filteredRentals);
 	function handleMouseEnter(index) {
 		hoveredIndex = index;
 		hoveredOwner = filteredRentals[hoveredIndex].OWNER;	
@@ -311,14 +310,14 @@
 	<!-- <dt>Year Built:</dt>
 	<dd>{yearBuilt}</dd> -->
 
-	<dt>Eviction rate:</dt>
+	<dt>Eviction rate (Soon<sup>TM</sup>):</dt>
 	<dd>{avgEvictRate.toFixed(2)}%</dd>
 
-	<dt>Code violations:</dt>
+	<dt>Code violations (Soon<sup>TM</sup>):</dt>
 	<dd>{totalCodeViolations}</dd>
 
 	<dt>Future purchase probability^:</dt>
-	<dd>{futurePurchaseProbability.toFixed(2)}%</dd>
+	<dd>{(100*futurePurchaseProbability).toFixed(2)}%</dd>
 
 	<dt>Overall Landlord Score:</dt>
 	<dd>{landlordScore}</dd>
@@ -368,7 +367,7 @@
 
 <div id="article-section">	
 	<h3>Resources to help you</h3>
-	<p>While having this information is a pivotal first step to addressing the power imbalance between landlords and you as a renter, there is much more information and other resources that exist to help you. Below you will find a list of helpful links especially if you feel your rights as a tennent have been violated.</p>
+	<p>While having this information is a pivotal first step to addressing the power imbalance between landlords and you as a renter, there is much more information and other resources that exist to help you. Below you will find a list of helpful links especially if you feel your rights as a tenant have been violated.</p>
 	<dl>
 		<h4>Helpful Links:</h4>
 		<dt><a href= "https://www.mass.gov/info-details/tenant-rights"> Tenant Rights</a> </dt>
@@ -382,7 +381,7 @@
 
 <div id="article-section">	
 	<h3>Check Your Address!</h3>
-	<p>With all the data we have access to we've been able to calculate a landlord score for many landlords using data about code violations, evictions, corporate ownership patterns, etc. </p>
+	<p>With all the data we have access to in addition to some sophisticated ML modeling of housing and buyers we can calculate a likelihood of purchase which in combination with code violations, evictions, and other corporate ownership patterns we developed a "landlord score". </p>
 	
 
 </div>
@@ -392,6 +391,7 @@
         aria-label="Search projects"
         placeholder="🔍 Search projects…"
 />
+<p></p>
 {#if errorMessage}
     <p>{errorMessage}</p>
 {/if}
