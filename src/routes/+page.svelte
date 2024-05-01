@@ -242,6 +242,7 @@
 		border-radius: 5px;
 		box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
 		backdrop-filter: blur(10px);
+		z-index: 2;
 	}
 
 	#commit-tooltip h3 {
