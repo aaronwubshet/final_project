@@ -1,4 +1,5 @@
 <!-- TODO add landlord score, eviction data -->
+<!-- ⁠Addressing any of the comments from critiques, cleaning up the visualizations, address any last bugs, ensuring we hit all the things on the rubric - Aaron -->
 <script>
 	import * as d3 from 'd3';
 	import mapboxgl from "mapbox-gl";
@@ -11,6 +12,12 @@
 	let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 	let format = d3.format(",.2f")
 	let filteredRentals = [];
+	
+	//top owners determination
+	let groupedData;
+	let topOwnersByYear = {};
+	let ownerCounts;
+	let tableData= [];
 
 	//search variables
 	let query = "";
@@ -66,7 +73,7 @@
 		});
 		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
 		
-		// https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/consolidated_data.csv
+		
 		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/compiled_output.csv", row => ({
         ...row,
         _id: Number(row._id), // or just +row.line
@@ -82,9 +89,25 @@
 		DATA_YR: Number(row.year)
         }) ); // load data
 		
-		
+
+		// Group data by year and owner
+		groupedData = d3.group(rentals, d => d.DATA_YR, d => d.OWNER);
+
+		// For each year, count the number of properties for each owner and select the top 10 owners
+		groupedData.forEach((owners, DATA_YR) => {
+		ownerCounts = Array.from(owners, ([owner, properties]) => ({ owner, count: properties.length }));
+
+		ownerCounts.sort((a, b) => d3.descending(a.count, b.count));
+
+		topOwnersByYear[DATA_YR] = ownerCounts.slice(0, 10).map(d => d.owner);
+		});
+		rentals = rentals.map(rental => ({
+		...rental,
+		isTop10Owner: isTop10Ownerfun(rental.OWNER, rental.DATA_YR) ? 1 : 0
+		}));
+			
 	})
-	
+
 
 	// two getCoords functions one for each map
 	function getCoords (rental) {
@@ -129,8 +152,7 @@
   	$: timeFilterLabel = new Date(filterYear, 0, 1).toLocaleString("en", {year: "numeric"}); // Update the time filter label whenever the filter year changes
 	// connect filterYear to actually filter dataset
 	$: filteredRentals = rentals.filter(r => r.DATA_YR === filterYear);
-
-
+	
 	// Search functionality
 	$:{
 		addressArray = filteredRentals.map(rental => rental.ADDRESS.toLowerCase());
@@ -179,10 +201,50 @@
 		hackyExit = 0;
 	}
 
+
+
+	// function to check if an owner is in the top 10 for a given year
+	function isTop10Ownerfun(owner, year) {
+		// Check if the year exists in the topOwnersByYear object
+		if (topOwnersByYear[year]) {
+			// If the year exists, check if the owner is in the top 10 for that year
+			return topOwnersByYear[year].includes(owner);
+		} else {
+			// If the year does not exist, return false
+			return false;
+		}
+		}
+	
+	// Function to get the count of properties for a given owner and year
+	function getPropertyCount(owner, year) {
+		// Check if the year exists in the groupedData map
+		if (groupedData.has(year)) {
+		// If the year exists, check if the owner exists for that year
+		if (groupedData.get(year).has(owner)) {
+			// If the owner exists, return the count of properties for the owner in the year
+			return groupedData.get(year).get(owner);
+		}
+		}
+		// If the year or owner does not exist, return 0
+		return 0;
+	}
+
+	$: if (topOwnersByYear && topOwnersByYear[filterYear] && filterYear) {
+		tableData = topOwnersByYear[filterYear].map(owner => ({
+		owner,
+		count: getPropertyCount(owner, filterYear)
+		})) || [];
+	}
+
 </script>
 
 <style>
 	@import url("$lib/global.css");
+	caption {
+		font-size: 1.5em; 
+		font-weight: bold;
+	}
+
 	#map2 {
 		flex: 1;
 	}
@@ -252,6 +314,7 @@
 
 	circle {
 		transition: 200ms;
+		opacity: .83;
 		transform-origin: center;
 		transform-box: fill-box;
 		&:hover {
@@ -269,7 +332,50 @@
 			width: 100%;
 			font-size: 2em;
 	}
-	
+	tr {
+		opacity: 0.83;
+	}
+	.slider {
+		-webkit-appearance: none;
+		width: 100%;
+		height: 15px;
+		background: #d3d3d3;
+		outline: none;
+		opacity: 0.7;
+		-webkit-transition: .2s;
+		transition: opacity .2s;
+	}
+
+	.slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 25px;
+		height: 25px;
+		background: #4CAF50;
+		cursor: pointer;
+		transform: translateY(-40%); /* Shift the thumb to the left by half its width */
+
+	}
+
+	.slider::-moz-range-thumb {
+		width: 25px;
+		height: 25px;
+		background: #4CAF50;
+		cursor: pointer;
+		transform: translateY(-40%); /* Shift the thumb to the left by half its width */
+
+	}
+
+	/* Style the tick marks */
+	.slider::-webkit-slider-runnable-track {
+		height: 5px;
+		background: repeating-linear-gradient(to right, #666, #666 1px, #fff 1px, #fff 5%);
+	}
+
+	.slider::-moz-range-track {
+		height: 5px;
+		background: repeating-linear-gradient(to right, #666, #666 1px, #fff 1px, #fff 5%);
+	}
 </style>
 
 <svelte:head>
@@ -283,14 +389,32 @@
 <p></p>
 
 <h3> Interactive map of top 10 owners</h3>
-<p>There is significant concentration of rental property ownership in the Boston area. About <em>~40%</em> of all units are held by the top 10 owners. The table below summarizes the breakdown</p>
-<p style="display: flex; justify-content: center;">	
-    <img src="images/top10owners.png" alt="table of top 10 owners in boston" style="width: 30%;" />
-</p>
-<p>This concentration tends drive a power imbalance between tenants and landlords similar to the way a union functions but in the opposite direction (think oligpoloy). Below is a map of Boston with the relevant* rental properties. Those owned by the top 20 are highlighted in different colors. Try out the slider to see how this has changed in the last 20+ years!</p>
+<p>There is significant concentration of rental property ownership in the Boston area by corporate land lords. The table below summarizes the breakdown</p>
+
+
+<table>
+	<caption>Top 10 Owners by property count</caption>
+
+	<thead>
+	  <tr>
+		<th>Owner</th>
+		<th>Residential Property Count</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {#each tableData as data, i (i)}
+		<tr style="background-color: {colorScale(i)}">
+		  <td>{data.owner}</td>
+		  <td>{data.count.length}</td>
+		</tr>
+	  {/each}
+	</tbody>
+  </table>
+
+<p>This concentration tends drive a power imbalance between tenants and landlords similar to the way a union functions but in the opposite direction (think oligpoloy). Below is a map of Boston with the relevant* rental properties. Those owned by the top 10 are highlighted in different colors. Try out the slider to see how this has changed in the last 20 years!</p>
 
 <label for="year-slider">Filter Year: {timeFilterLabel}</label>
-<input id="year-slider" type="range" min={2000} max={2022} step="1" bind:value={filterYear} />
+<input class = "slider" id="year-slider" type="range" min={2000} max={2022} step="1" bind:value={filterYear} />
 <p>	</p>
 <dl id="commit-tooltip" class="info tooltip" hidden={hoveredIndex === -1}>
 	<h3>Owner Facts</h3>
@@ -325,6 +449,12 @@
 
 
 </dl>
+<ul><em>Legend</em></ul>
+<li>Each dot represents a residential rental property. We will continue to supplement with mroe data as we get it!</li>
+<li>Colored dots correspond to the top 10 owners of that year</li>
+<li>Hover over a dot to see more information about the owner</li>
+<li>use the slider to see how the top 10 owners change and where the dots move</li>
+
 <div id="map">	
 	<svg>
 		{#key mapViewChanged}
@@ -333,7 +463,7 @@
 					cx={ getCoords(rental).cx }
 					cy={ getCoords(rental).cy }
 					r="5" 
-					fill={rental.Top_10_owner === 1 ? colorScale(rental.OWNER): "grey"}
+					fill={rental.isTop10Owner === 1 ? colorScale(rental.OWNER): "grey"}
 					class:grey={hoveredOwner !== null && rental.OWNER !== hoveredOwner}
 					on:mouseleave={evt => handleMouseExit()}
 					on:mouseenter={evt => handleMouseEnter(index)}			
@@ -349,19 +479,19 @@
 	<p>Eviction represents a forceful action capable of displacing individuals from their communities and familial networks, disrupting access to education and healthcare, and plunging them into a cycle of financial uncertainty. It serves as a catalyst for housing instability and inequality, both on a national and local scale. Previous research has demonstrated that corporate and absentee landlords are more prone to evicting tenants, resulting in adverse consequences for housing stability. This pattern persists across various neighborhoods in the greater Boston area. It is clear from the graph below that this problem is only getting worse. Quantities of evictions have steadily increased from 2020 to 2023.</p>
 
 	<p style="display: flex; justify-content: center;">	
-		<img src="images/evictions_over_time.png" alt="table of top 10 owners in boston" style = "width: 60%"/>
+		<img src="images/evictions_over_time.png" alt="table of top 10 owners in boston" style = "width: 100%"/>
 	</p>
 
 	<p>The gradual rise in eviction rates correlates significantly with the growing prevalence of corporate property ownership in recent years as displayed in the graph below. Additionally, heightened levels of absentee, institutional ownership of rental units by speculative investors corresponded with increased eviction rates. This aligns with extensive empirical evidence illustrating that concentrated corporate property ownership amplifies housing inequities. A mere 1 percentage-point rise in rental units owned by institutional owners was linked to a more than 2% surge in the filing rate [Robsky Huntly et. al., 2022].</p>
 
 	<p style="display: flex; justify-content: center;">	
-		<img src="images/corpown.png" alt="corporate ownership over time" style = "width: 60%"/>
+		<img src="images/corpown.png" alt="corporate ownership over time" style = "width: 100%"/>
 	</p>
 
 	<p>The data depicted in the graph illustrates a clear trend indicating that eviction rates tend to be notably higher for households with lower incomes. Over the span of four years, from 2020 to 2023, the graph portrays a consistent clustering of data points between the income range of $15,000 to $40,000. This clustering suggests that households with median incomes falling within this range are disproportionately affected by evictions in the greater Boston area. The consistent pattern underscores the correlation between lower income levels and heightened vulnerability to eviction, emphasizing the pressing need for targeted interventions to address housing insecurity among economically disadvantaged populations.</p>
 
 	<p style="display: flex; justify-content: center;">	
-		<img src="images/eviction_and_income.png" alt="Image description" style= "width: 60%"/>
+		<img src="images/eviction_and_income.png" alt="Image description" style= "width: 100%"/>
 	</p>
 </div>
 
@@ -425,4 +555,5 @@
 	<p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
 	<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future. This was calculated using a machine learning model based on historic data. The key data used was filtered down based on land use area codes. </p>
 	<p>Robsky Huntley, E., Almeida, L., Heaton, S., Moon Park, A. Housing Justice Beyond the Emergency. 2022; hfamass-covid-evictions-report-short-03-22-screen-rfs.pdf (homesforallmass.org) </p>
+	<p>Analyze Boston, Property Assessment 2024</p>
 </div>
