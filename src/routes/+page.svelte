@@ -551,9 +551,10 @@
 
 <div id="footer">
 	<h4>Footnotes</h4>
-	<p> Data Sources</p>
+	<p> <em>Data Sources & Acknowledgements:</em></p>
 	<p>* Relevant is defined using land use codes from <a href= "https://data.boston.gov/dataset/property-assessment/resource/fda18178-b7f8-49fc-be3e-75ddc0be4117"> Boston Property Assessment Data</a></p>
 	<p> ^Estimated probabilty of property to be purchased by a top 10 owner in the future. This was calculated using a machine learning model based on historic data. The key data used was filtered down based on land use area codes. </p>
 	<p>Robsky Huntley, E., Almeida, L., Heaton, S., Moon Park, A. Housing Justice Beyond the Emergency. 2022; hfamass-covid-evictions-report-short-03-22-screen-rfs.pdf (homesforallmass.org) </p>
 	<p>Analyze Boston, Property Assessment 2024</p>
+	<p>This project was developed with guidance and feedback from the Metropolitan Area Planning Commission (MAPC).</p>
 </div>
