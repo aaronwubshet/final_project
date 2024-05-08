@@ -376,6 +376,9 @@
 		height: 5px;
 		background: repeating-linear-gradient(to right, #666, #666 1px, #fff 1px, #fff 5%);
 	}
+	.legend {
+		font-weight: bold;
+	}
 </style>
 
 <svelte:head>
@@ -449,11 +452,12 @@
 
 
 </dl>
-<ul><em>Legend</em></ul>
+
+<ul class= "legend">Legend</ul>
 <li>Each dot represents a residential rental property. We will continue to supplement with mroe data as we get it!</li>
 <li>Colored dots correspond to the top 10 owners of that year</li>
 <li>Hover over a dot to see more information about the owner</li>
-<li>use the slider to see how the top 10 owners change and where the dots move</li>
+<li>Use the slider to see how the top 10 owners change and where the dots move</li>
 
 <div id="map">	
 	<svg>
