@@ -50,7 +50,7 @@
 	let evict_score;
 	let totalCodeViolations = 0;
 	let futurePurchaseProbability = 0;
-	let landlordScore = 0;
+	let landlordScore;
 
 	onMount( async() => {
 		// create map object
@@ -83,7 +83,7 @@
 		YR_BUILT: Number(row.YR_BUILT),
 		Code_violation_count: Number(row.code_violations),
 		Likelihood_of_purchase: Number(row.predictions),
-		Landlord_score: Number(row.score),
+		Landlord_score: row.score,
 		Top_10_owner: Number(row.Top_10_owner),
 		DATA_YR: Number(row.year)
         }) ); // load data
@@ -140,7 +140,7 @@
 		yearBuilt = filteredRentals[hoveredIndex].YR_BUILT;
 		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
-		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
+		landlordScore = filteredRentals[hoveredIndex].Landlord_score;
 	}
 	
 	// update view change counter when either map is moved
@@ -153,11 +153,7 @@
 	$: filteredRentals = rentals.filter(r => r.DATA_YR === filterYear);
 	
 	// Search functionality
-	$:{
-		addressArray = filteredRentals.map(rental => rental.ADDRESS.toLowerCase());
-		values = addressArray.filter(address => address.includes(query.toLowerCase()));
-		searchedRentals = filteredRentals.filter(rental => values.includes(rental.ADDRESS.toLowerCase()));
-	}
+	$:searchedRentals = filteredRentals.filter(rental => rental.address.includes(query.toLowerCase()));
 	function handleMouseExit2() {
 		hoveredIndex = -1;
 		hoveredOwner = null;
@@ -181,10 +177,10 @@
     	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
     	averageTotalValue = totalValue / ownerRentals.length;
 		yearBuilt = searchedRentals[0].YR_BUILT;
-		evict_score = filteredRentals[hoveredIndex].eviction_score;
+		evict_score = searchedRentals[0].eviction_score;
 		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
-		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
+		landlordScore = searchedRentals[0].Landlord_score;
 		let rental = searchedRentals[0];
 	    map2.setCenter([rental.Long, rental.Lat]);
 
@@ -446,7 +442,7 @@
 	<dt>Future purchase probability^:</dt>
 	<dd>{(100*futurePurchaseProbability).toFixed(2)}%</dd>
 
-	<dt>Overall Landlord Score(Soon<sup>TM</sup>):</dt>
+	<dt>Overall Landlord Score:</dt>
 	<dd>{landlordScore}</dd>
 
 
