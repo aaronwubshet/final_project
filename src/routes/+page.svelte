@@ -47,7 +47,7 @@
 	let ownerRentals =[];
 	let totalValue = 0;
 	let yearBuilt = 0;
-	let avgEvictRate = 0;
+	let evict_score;
 	let totalCodeViolations = 0;
 	let futurePurchaseProbability = 0;
 	let landlordScore = 0;
@@ -81,7 +81,6 @@
 		Long: Number(row.lon_x),
 		TOTAL_VALUE: Number(row.TOTAL_VALUE),
 		YR_BUILT: Number(row.YR_BUILT),
-		Evict_rate: Number(row.evictions),
 		Code_violation_count: Number(row.code_violations),
 		Likelihood_of_purchase: Number(row.predictions),
 		Landlord_score: Number(row.score),
@@ -137,8 +136,8 @@
 		ownerRentals = filteredRentals.filter(r => r.OWNER === hoveredOwner);
     	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
     	averageTotalValue = totalValue / ownerRentals.length;
+		evict_score = filteredRentals[hoveredIndex].eviction_score;
 		yearBuilt = filteredRentals[hoveredIndex].YR_BUILT;
-		avgEvictRate = d3.mean(ownerRentals, r => +r.Evict_rate);
 		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
 		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
@@ -182,7 +181,7 @@
     	totalValue = d3.sum(ownerRentals, r => +r.TOTAL_VALUE);
     	averageTotalValue = totalValue / ownerRentals.length;
 		yearBuilt = searchedRentals[0].YR_BUILT;
-		avgEvictRate = d3.mean(ownerRentals, r => +r.Evict_rate);
+		evict_score = filteredRentals[hoveredIndex].eviction_score;
 		totalCodeViolations = d3.sum(ownerRentals, r => +r.Code_violation_count);
 		futurePurchaseProbability = d3.mean(ownerRentals, r => +r.Likelihood_of_purchase);
 		landlordScore = d3.mean(ownerRentals, r => +r.Landlord_score);
@@ -438,8 +437,8 @@
 	<!-- <dt>Year Built:</dt>
 	<dd>{yearBuilt}</dd> -->
 
-	<dt>Eviction rate (Soon<sup>TM</sup>):</dt>
-	<dd>{avgEvictRate.toFixed(2)}%</dd>
+	<dt>Eviction Score:</dt>
+	<dd>{evict_score}</dd>
 
 	<dt>Code violations:</dt>
 	<dd>{totalCodeViolations}</dd>
