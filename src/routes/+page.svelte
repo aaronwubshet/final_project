@@ -74,7 +74,7 @@
 		await new Promise(resolve => map2.on("load", resolve)); // wait until the map is fully loaded before loading data
 		
 		
-		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/compiled_output1.csv", row => ({
+		rentals = await d3.csv("https://raw.githubusercontent.com/aaronwubshet/final_project/main/src/lib/compiled_output.csv", row => ({
         ...row,
         _id: Number(row._id), // or just +row.line
         Lat: Number(row.lat_x),
